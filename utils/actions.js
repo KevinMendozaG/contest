@@ -7,7 +7,7 @@ import random from 'random'
 const db= firebase.firestore(firebaseApp)
 
 export const getQuestion = async(category) => {
-    const result = { statusResponse: true, error: null, question: "", answers: []}
+    const result = { statusResponse: true, error: null, question: "", answers: [], correctAns: null}
     const num = random.int((min = 1), (max = 5))
     try {
         const response = await db
@@ -21,6 +21,7 @@ export const getQuestion = async(category) => {
                 const data = doc.data()
                 result.question = data.name
                 result.answers = data.answers
+                result.correctAns = data.correctAnswer
                 console.log(result.answers)
             })
     } catch (error) {

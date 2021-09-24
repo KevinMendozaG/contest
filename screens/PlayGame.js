@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import random from 'random'
+import {  StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from '@react-navigation/core'
 import { ListItem } from 'react-native-elements'
+import { map } from 'lodash'
 
 import { getQuestion } from '../utils/actions'
 import Loading from '../components/Loading'
@@ -11,6 +11,7 @@ export default function PlayGame({ navigation, route }) {
     const { level } = route.params
     const [question, setQuestion] = useState("")
     const [answers, setAnswers] = useState([])
+    const [selectedAnswer, setSelectedAnswer] = useState(null)
     const [reload, setReload] = useState(false)
     const [category, setCategory] = useState("")
     const [loading, setLoading] = useState(false)
@@ -24,6 +25,7 @@ export default function PlayGame({ navigation, route }) {
                 console.log(response.statusResponse)
                 if(response.statusResponse){
                     setQuestion(response.question)
+                    setAnswers(response.answers)
                 }
                 setLoading(false)
             })()
@@ -50,27 +52,31 @@ export default function PlayGame({ navigation, route }) {
         }
     }
 
-    const num = random.int((min = 1), (max = 5)) 
+    const itemSelected = (ans, id) => {
+        setSelectedAnswer(ans)
+        console.log(selectedAnswer)
+        console.log(id)
+    }
+
     return (
         <View>
             <Text style={styles.title}>Nivel/Ronda: {level}    Categoria: {category}</Text>
             <Text style={styles.question}>{question}</Text>
-            {/* {
-                map(answers, (ans, id) =>(
-                <ListItem
-                    key= {id}
-                    onPress = {()=> itemSelected(ans.name, ans.id)  }                
+            
+            <View >
+            {
+                map(answers,(ans, i) => (
+                <ListItem key={i} bottomDivider
+                onPress = {()=> itemSelected(ans, i)  } 
+                style={styles.containerStyle}
                 >
                     <ListItem.Content>
-                        <ListItem.Title>
-                            {ans}             
-                        </ListItem.Title>                                          
-                    </ListItem.Content>                
+                    <ListItem.Title style={styles.answer}>{ans}</ListItem.Title>
+                    </ListItem.Content>
                 </ListItem>
-            
                 ))
-            
-            } */}
+            }
+            </View>
             <Loading
                 isVisible= {loading}
                 text="Cargando Pregunta..."
@@ -94,5 +100,15 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         textAlign: "justify",
         alignItems: "flex-start"
+    },
+    containerStyle: {
+        margin: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: "#e4546c"
+    },
+    answer: {
+        fontWeight: "bold",
+        fontSize: 15,
+        fontStyle: "italic"
     }
 })
