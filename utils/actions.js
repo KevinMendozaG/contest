@@ -22,7 +22,7 @@ export const getQuestion = async(category) => {
                 result.question = data.name
                 result.answers = data.answers
                 result.correctAns = data.correctAnswer
-                console.log(result.answers)
+
             })
     } catch (error) {
         result.statusResponse = false

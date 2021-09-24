@@ -2,9 +2,11 @@ import React, {useState} from 'react'
 import { StyleSheet, Text, ScrollView, Image } from 'react-native'
 import { Button } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
+import Modal from '../components/Modal'
 
-export default function WelcomePage() {
+export default function WelcomePage({answers, correctAnswer, setVisible}) {
     const [level, setLevel] = useState(1)
+    const [points, setPoints] = useState(0)
 
     const navigation = useNavigation()
 
@@ -31,9 +33,8 @@ export default function WelcomePage() {
             <Button
                 title="Comenzar juego"
                 buttonStyle={styles.button}
-                onPress={() => navigation.navigate("playGame", {level : level})}
+                onPress={() => navigation.navigate("playGame", {level : level, points : points})}
             />
-            
         </ScrollView>
     )
 }
