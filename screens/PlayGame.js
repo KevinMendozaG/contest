@@ -14,22 +14,49 @@ export default function PlayGame({ navigation, route }) {
     const [controlPoints, setControlPoints] = useState(points)
     const [question, setQuestion] = useState("")
     const [answers, setAnswers] = useState([])
-    const [selectedAnswer, setSelectedAnswer] = useState(null)
     const [correctAnswer, setCorrectAnswer] = useState(null)
-    const [reload, setReload] = useState(false)
+    const [reload, setReload] = useState(true)
     const [category, setCategory] = useState("")
     const [loading, setLoading] = useState(false)
-    const [showModal, setShowModal] = useState(false)
+    const [showLoseModal, setShowLoseModal] = useState(false)
+    const [exitButton, setExitButton] = useState(false)
 
-    useEffect(() => {    
+
+    useEffect(() => {
+        const backAction = () => {
+            Alert.alert("Espera!", "¿Seguro que quieres cerrar del juego?", [
+              {
+                text: "Cancelar",
+                onPress: () => null,
+                style: "cancel"
+              },
+              { text: "Salir", onPress: () => BackHandler.exitApp() }
+            ]);
+            return true;
+          };    
+
         const backHandler = BackHandler.addEventListener(
           "hardwareBackPress",
-          () => exitGame(navigation)
+          backAction
         )
     
         return () => backHandler.remove()
       }, [])
-    
+
+    //   useEffect(() => {
+    //     (async() =>{
+    //         setReload(false)
+    //         identifyCategory()
+    //         setLoading(true)
+    //         const response = await getQuestion(category)
+    //         if(response.statusResponse){
+    //             setQuestion(response.question)
+    //             setAnswers(response.answers)
+    //             setCorrectAnswer(response.correctAns)
+    //         }
+    //         setLoading(false)
+    //     })()
+    //   }, [reload])
 
     useFocusEffect(
         useCallback(() => {
@@ -54,42 +81,60 @@ export default function PlayGame({ navigation, route }) {
                 setCategory("Musica")
                 break;
             case 2:
-                setCategory("TV")
+                setCategory("Entretenimiento")
                 break;
             case 3:
-                setCategory("Matematicas")
-                break;
-            case 4:
                 setCategory("Historia")
                 break;
+            case 4:
+                setCategory("Geografia")
+                break;
             default:
-                setCategory("Fisica")
+                setCategory("Ciencia")
                 break;
         }
     }
 
     const itemSelected = (ans, id) => {
-        setSelectedAnswer(ans)
-        console.log(correctAnswer)
-        console.log(id)
         if (id==correctAnswer) {
-            console.log("hola!!!")
             setControlLevel(controlLevel+1)
+            if (controlLevel==5) {
+                setControlPoints(controlPoints+500)
+                setReload(true)
+                return
+            }
             setControlPoints(controlPoints+100)
             setReload(true)
             return
         }
-        setShowModal(true)
-        
+        setShowLoseModal(true)
+    }
+
+    const exitAction = (setExitButton, setShowLoseModal) => {
+        setExitButton(true)
+        setShowLoseModal(true)
     }
 
     return (
-        <View>
+        controlLevel==6
+                ? <View>
+                <Text style={styles.title}>Felicidades!</Text>
+                <Text style={styles.title}>Llegaste a la ronda {controlLevel-1} y ganaste {controlPoints}USD</Text>
+                <Button
+                    title="Volver a pantalla principal"
+                    containerStyle={styles.btnContainer}
+                    buttonStyle={styles.btn}
+                    onPress={() => navigation.navigate("welcomePage")}
+                />
+            </View>
+                :
+        <View style={styles.viewBody}>
             <Text style={styles.title}>Nivel/Ronda: {controlLevel}    Categoria: {category}</Text>
+            <Text style={styles.title}>Acumulado: {controlPoints}USD</Text>
             <Text style={styles.question}>{question}</Text>
             
             <View >
-            {               
+            {
                 map(answers,(ans, i) => (
                 <ListItem key={i} bottomDivider
                 onPress = {()=> itemSelected(ans, i)  } 
@@ -106,38 +151,36 @@ export default function PlayGame({ navigation, route }) {
                 title="Salir con el acumulado actual"
                 containerStyle={styles.btnContainer}
                 buttonStyle={styles.btn}
-                onPress={() => exitGame(navigation)}
-                
+                onPress={() => exitAction(setExitButton, setShowLoseModal)} 
             />
             <Loading
                 isVisible= {loading}
                 text="Cargando Pregunta..."
             />
-            <Modal isVisible={showModal} setVisible={setShowModal}>
+            <Modal isVisible={showLoseModal} setVisible={setShowLoseModal}>
                 {
-                    <Lose answers={answers} correctAnswer={correctAnswer} setVisible={setShowModal} navigation={navigation} wonPoints={controlPoints}/>
+                    <Lose controlLevel={controlLevel} answers={answers} correctAnswer={correctAnswer} setVisible={setShowLoseModal} navigation={navigation} wonPoints={controlPoints} exitButton={exitButton}/>
                 }
             </Modal>
         </View>
     )
 }
 
-const exitGame = (navigation) => {
-    console.log("hello??????")
-    Alert.alert("Espera!", "Seguro que no quieres seguir participando?", [
-        {
-          text: "Cancelar",
-          onPress: () => null,
-          style: "cancel"
-        },
-        { text: "Si, seguro", onPress: () => navigation.navigate("welcomePage") }
-      ]);
-      return true;
-}
-
-function Lose({answers, correctAnswer, setVisible, navigation, wonPoints}){
+function Lose({controlLevel, answers, correctAnswer, setVisible, navigation, wonPoints,exitButton}){
 
     return(
+        exitButton
+        ?<View>
+        <Text style={styles.lostTitle}>Saliste en la ronda {controlLevel}</Text>
+        <Text style={styles.lostText}>Dinero ganado:  {wonPoints}USD</Text>
+        <Button
+            title="Presiona para volver a la pagina de inicio"
+            containerStyle={styles.btnContainer}
+            buttonStyle={styles.btn}
+            onPress={() => goBack(setVisible, navigation)}
+        />
+        </View>
+        :
         <View>
             <Text style={styles.lostTitle}>Respuesta incorrecta!</Text>
             <Text style={styles.lostText}>La respuesta correcta es:  {answers[correctAnswer]}</Text>
@@ -161,18 +204,19 @@ const goBack = (setVisible, navigation) => {
 const styles = StyleSheet.create({
     title: {
         fontWeight: "bold",
-        fontSize: 19,
-        marginVertical: 10,
+        fontSize: 20,
         textAlign: "center",
         alignItems: "flex-start",
-        marginTop: 10
+        marginTop: 20
     },
     question: {
         fontWeight: "bold",
-        fontSize: 19,
+        fontSize: 20,
         marginVertical: 10,
+        marginHorizontal: 10,
         textAlign: "justify",
-        alignItems: "flex-start"
+        alignItems: "flex-start",
+        color: "#a42c34"
     },
     containerStyle: {
         margin: 5,
@@ -186,7 +230,8 @@ const styles = StyleSheet.create({
     },
     btnContainer: {
         width:"95%",
-        marginTop: 10
+        marginTop: 10,
+        marginLeft: 10
     },
     btn: {
         borderRadius: 20,
