@@ -7,6 +7,7 @@ import { isEmpty, size } from 'lodash';
 import Loading from '../components/Loading';
 import { addDocumentWithoutId } from '../utils/actions';
 
+//Pantalla para configurar las preguntas
 export default function ConfigureGame({navigation}) {
     const [numQuestion, setNumQuestion] = useState(1)
     const [numCategory, setNumCategory] = useState(1)
@@ -35,6 +36,7 @@ export default function ConfigureGame({navigation}) {
         }, [reload])
     )
 
+    //identificamos el nombre de la categoria segun el numero de la categoria en el que estemos actualmente
     const identifyCategory = () =>{
         switch (numCategory) {
             case 1:
@@ -55,14 +57,16 @@ export default function ConfigureGame({navigation}) {
         }
     }
     
+    //Metodo para capturar la informacion de los inputs
     const onChange = (e, type) => {
         setFormData({...formData, [type]: e.nativeEvent.text})
         
     }
 
+    //Metodo para agregar la pregunta y respuestas a la base de datos y recargar la pagina para ingresar
+    //una nueva pregunta 
     const configureNextQuestion = async() =>{
         formData.answers.push(ans1,ans2,ans3,ans4)
-        //identifyCategory()
         if (!validateData()){
             setAns1(null)
             setAns2(null)
@@ -83,17 +87,17 @@ export default function ConfigureGame({navigation}) {
         setReload(true)
     }
 
+    //Metodo para ingresar preguntas de la siguiente categoria
     const nextCategory = () =>{
         if (numCategory==6) {
             return
         } else {
             setNumCategory(numCategory+1)
-            console.log(numCategory)
-            console.log(category)
             setReload(true)
         }
     }
 
+    //Validar que se haya ingresado los datos correctamente, aun faltan unas falidaciones al campo entero
     const validateData = () =>{
         setErrorName("")
         setErrorAnswers("")

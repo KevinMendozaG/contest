@@ -8,6 +8,7 @@ import { addDocumentWithoutId, getQuestion } from '../utils/actions'
 import Loading from '../components/Loading'
 import Modal from '../components/Modal'
 
+//Pantalla del juego para responder las preguntas y respuestas
 export default function PlayGame({ navigation, route }) {
     const { points, playerName, playerAge } = route.params
     const [controlLevel, setControlLevel] = useState(1)
@@ -21,7 +22,7 @@ export default function PlayGame({ navigation, route }) {
     const [showLoseModal, setShowLoseModal] = useState(false)
     const [exitButton, setExitButton] = useState(false)
 
-
+    //Un control para cuando se presione el boton hacia atras de el celular para salir del juego cuando se esta respondiendo respuestas
     useEffect(() => {
         const backAction = () => {
             Alert.alert("Espera!", "¿Seguro que quieres cerrar del juego?", [
@@ -39,28 +40,13 @@ export default function PlayGame({ navigation, route }) {
           "hardwareBackPress",
           backAction
         )
-    
         return () => backHandler.remove()
       }, [])
 
-    //   useEffect(() => {
-    //     (async() =>{
-    //         setReload(false)
-    //         identifyCategory()
-    //         setLoading(true)
-    //         const response = await getQuestion(category)
-    //         if(response.statusResponse){
-    //             setQuestion(response.question)
-    //             setAnswers(response.answers)
-    //             setCorrectAnswer(response.correctAns)
-    //         }
-    //         setLoading(false)
-    //     })()
-    //   }, [reload])
-
+      //Cargar la siguiente pregunta
     useFocusEffect(
         useCallback(() => {
-            (async() =>{
+            async function getData() {
                 identifyCategory()
                 setLoading(true)
                 const response = await getQuestion(category)
@@ -70,8 +56,10 @@ export default function PlayGame({ navigation, route }) {
                     setCorrectAnswer(response.correctAns)
                 }
                 setLoading(false)
-                setReload(false)
-            })()
+                
+            }
+            getData()
+            setReload(false)
         }, [reload])
     )
 
@@ -95,6 +83,8 @@ export default function PlayGame({ navigation, route }) {
         }
     }
 
+    //Metodo para comparar si la respuesta escogida es la respuesta correcta, si lo es pasa de ronda 
+    //si no se muestra el componente Modal 
     const itemSelected = (ans, id) => {
         if (id==correctAnswer) {
             setControlLevel(controlLevel+1)
@@ -115,12 +105,12 @@ export default function PlayGame({ navigation, route }) {
         setShowLoseModal(true)
     }
 
+    //Guardamos los datos de jugador en la base de datos
     const savePlayerData = async() => {
-        //const [data, setData] = useState({playerName: playerName, playerAge: playerAge, roundReached: controlLevel, pointsWon: controlPoints})
         const data= {playerName: playerName, playerAge: playerAge, roundReached: controlLevel-1, pointsWon: controlPoints}
         const response = await addDocumentWithoutId("playersInfo", data)
-                if(response.statusResponse){
-                    console.log("info del juegador guardada")
+                if(!response.statusResponse){
+                    console.log(response.error)
                 }
         navigation.navigate("welcomePage")
     }
@@ -128,7 +118,6 @@ export default function PlayGame({ navigation, route }) {
     return (
         controlLevel==6
                 ? 
-                
                 <View>
                 <Text style={styles.title}>Felicidades!</Text>
                 <Text style={styles.title}>Llegaste a la ronda {controlLevel-1} y ganaste {controlPoints}USD</Text>
@@ -179,6 +168,7 @@ export default function PlayGame({ navigation, route }) {
     )
 }
 
+//Componente que renderiza el componente Modal
 function Lose({playerName, playerAge, controlLevel, answers, correctAnswer, setVisible, navigation, wonPoints,exitButton}){
     
     const [data, setData] = useState({playerName: playerName, playerAge: playerAge, roundReached: controlLevel-1, pointsWon: wonPoints})
@@ -186,12 +176,12 @@ function Lose({playerName, playerAge, controlLevel, answers, correctAnswer, setV
     useFocusEffect(
         useCallback(() => {
             (async() =>{
-                // setLoading(true)
+                
                 const response = await addDocumentWithoutId("playersInfo", data)
-                if(response.statusResponse){
-                    console.log("info del juegador guardada")
+                if(!response.statusResponse){
+                    console.log(response.error)
                 }
-                // setLoading(false)
+                
             })()
         }, [])
     )

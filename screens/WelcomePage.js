@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native'
 import { DataTable } from 'react-native-paper'
 import { isEmpty } from 'lodash';
 
+//Pantalla principal de la aplicacíon
 export default function WelcomePage() {
     const [points, setPoints] = useState(0)
     const [formData, setFormData] = useState(defaultFormValues())
@@ -13,11 +14,14 @@ export default function WelcomePage() {
 
     const navigation = useNavigation()
 
+    //metodo para capturar los inputs
     const onChange = (e, type) => {
         setFormData({...formData, [type]: e.nativeEvent.text})
         
     }
 
+    //Cuando se presione el boton de comenzar juego validamos que haya ingresado nombre y edad para el historico
+    //y navegamos a la pantalla del juego
     const startGame = () =>{
         if (!validateData()){
             return;
@@ -25,6 +29,7 @@ export default function WelcomePage() {
         navigation.navigate("playGame", {points : points, playerName: formData.name, playerAge: formData.age})
     }
 
+    //Metodo para validar que se haya ingresado los datos correctamente
     const validateData = () =>{
         setErrorName("")
         setErrorAge("")
@@ -43,7 +48,6 @@ export default function WelcomePage() {
     }
     
     return (
-        
         <ScrollView
             centerContent
             style={styles.viewBody}

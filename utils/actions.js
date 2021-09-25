@@ -6,6 +6,7 @@ import random from 'random'
 
 const db= firebase.firestore(firebaseApp)
 
+//Metodo para obtener la pregunta segun la categoria y segun un numero aleatorio dentro de la categoria
 export const getQuestion = async(category) => {
     const result = { statusResponse: true, error: null, question: "", answers: [], correctAns: null}
     const num = random.int((min = 1), (max = 5))
@@ -13,8 +14,6 @@ export const getQuestion = async(category) => {
         const response = await db
             .collection("questions")
             .where("idQuestion", "==", `${num}`)
-            // .where("idQuestion", "==", "1")
-            // .where("category", "==", "Musica")
             .where("category", "==", category)
             .get()
             
@@ -32,6 +31,7 @@ export const getQuestion = async(category) => {
     return result     
 }
 
+//Agregar documentos a la base de datos
 export const addDocumentWithoutId = async(collection, data) => {
     const result = { statusResponse: true, error: null }
     try {
@@ -39,7 +39,6 @@ export const addDocumentWithoutId = async(collection, data) => {
     } catch (error) {
         result.statusResponse = false
         result.error = error
-        console.log(error)
     }
     return result     
 }

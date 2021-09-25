@@ -9,8 +9,9 @@ import ConfigureGame from '../screens/ConfigureGame'
 const Stack = createStackNavigator()
 
 export default function Navigations() {
-    //
+    
     return (
+        //Creamos la navegacion principal con 3 pantallas y iniciamos la aplicacion en la pantalla WelcomePage
         <NavigationContainer>
             <Stack.Navigator
                 initialRouteName="welcomePage"
