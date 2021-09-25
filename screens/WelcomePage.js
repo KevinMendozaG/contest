@@ -6,7 +6,6 @@ import { DataTable } from 'react-native-paper'
 import { isEmpty } from 'lodash';
 
 export default function WelcomePage() {
-    const [level, setLevel] = useState(1)
     const [points, setPoints] = useState(0)
     const [formData, setFormData] = useState(defaultFormValues())
     const [errorName, setErrorName] = useState("")
@@ -95,8 +94,7 @@ export default function WelcomePage() {
             </DataTable>
             </View>
             <Text style={styles.description}>
-                Para comenzar a jugar presiona el boton, 
-                cada ronda exitosa otorga 100 puntos, la ultima ronda otorga 500 puntos!!
+                Cada ronda exitosa otorga 100 puntos, la ultima ronda otorga 500 puntos!!
             </Text>
             <Text style={styles.title}> 1 punto= 1USD </Text>
             <Input
@@ -136,7 +134,7 @@ const styles = StyleSheet.create({
         marginHorizontal:30
     },
     image: {
-        height: 200,
+        height: 150,
         width: "100%",
         marginBottom: 10
     },
@@ -153,7 +151,7 @@ const styles = StyleSheet.create({
         color: "#a45c34"
     },
     button: {
-        backgroundColor: "#54bcec"
+        backgroundColor: "#442484"
     },
     container: {
         paddingHorizontal: 30,

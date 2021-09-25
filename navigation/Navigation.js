@@ -4,6 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack"
 
 import PlayGame from '../screens/PlayGame'
 import WelcomePage from '../screens/WelcomePage'
+import ConfigureGame from '../screens/ConfigureGame'
 
 const Stack = createStackNavigator()
 
@@ -22,6 +23,11 @@ export default function Navigations() {
                 <Stack.Screen
                 name= "playGame"
                 component={PlayGame}
+                options={{headerMode: 'none'}}
+                />
+                <Stack.Screen
+                name= "configureGame"
+                component={ConfigureGame}
                 options={{headerMode: 'none'}}
                 />
             </Stack.Navigator>

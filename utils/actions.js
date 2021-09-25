@@ -10,7 +10,6 @@ export const getQuestion = async(category) => {
     const result = { statusResponse: true, error: null, question: "", answers: [], correctAns: null}
     const num = random.int((min = 1), (max = 5))
     try {
-        console.log(category)
         const response = await db
             .collection("questions")
             .where("idQuestion", "==", `${num}`)
@@ -40,6 +39,7 @@ export const addDocumentWithoutId = async(collection, data) => {
     } catch (error) {
         result.statusResponse = false
         result.error = error
+        console.log(error)
     }
     return result     
 }
