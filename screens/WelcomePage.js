@@ -1,15 +1,50 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, ScrollView, Image } from 'react-native'
-import { Button } from 'react-native-elements'
+import { StyleSheet, Text, ScrollView, Image, View } from 'react-native'
+import { Button, Input } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
+import { DataTable } from 'react-native-paper'
+import { isEmpty } from 'lodash';
 
 export default function WelcomePage() {
     const [level, setLevel] = useState(1)
     const [points, setPoints] = useState(0)
+    const [formData, setFormData] = useState(defaultFormValues())
+    const [errorName, setErrorName] = useState("")
+    const [errorAge, setErrorAge] = useState("")
 
     const navigation = useNavigation()
 
+    const onChange = (e, type) => {
+        setFormData({...formData, [type]: e.nativeEvent.text})
+        
+    }
+
+    const startGame = () =>{
+        if (!validateData()){
+            return;
+        }
+        navigation.navigate("playGame", {points : points, playerName: formData.name, playerAge: formData.age})
+    }
+
+    const validateData = () =>{
+        setErrorName("")
+        setErrorAge("")
+        let isValid = true
+
+        if(isEmpty(formData.name)){
+            setErrorName("Debes ingresar tu nombre")
+            isValid = false
+        }
+
+        if(isEmpty(formData.age)){
+            setErrorAge("Debes ingresar tu edad")
+            isValid = false
+        }
+        return isValid
+    }
+    
     return (
+        
         <ScrollView
             centerContent
             style={styles.viewBody}
@@ -19,25 +54,81 @@ export default function WelcomePage() {
                 resizeMode="contain"
                 style={styles.image}
             />
-            <Text style={styles.title}>Nivel 1: Musica{/* Nivel 2: TV Nivel 3: Matematicas Nivel 4: Historia
-            Nivel 5: Fisica */}
-            </Text>
-            <Text style={styles.title}>Nivel 2: Entretenimiento</Text>
-            <Text style={styles.title}>Nivel 3: Historia</Text>
-            <Text style={styles.title}>Nivel 4: Geografía</Text>
-            <Text style={styles.title}>Nivel 5: Ciencia</Text>
+            <View style={styles.container}>
+            <DataTable>
+                <DataTable.Header >
+                <DataTable.Title>Nivel</DataTable.Title>
+                <DataTable.Title>Categoría</DataTable.Title>
+                <DataTable.Title numeric>Puntos</DataTable.Title>
+                </DataTable.Header>
+
+                <DataTable.Row>
+                <DataTable.Cell>1</DataTable.Cell>
+                <DataTable.Cell>Musica</DataTable.Cell>
+                <DataTable.Cell numeric>100</DataTable.Cell>
+                </DataTable.Row>
+
+                <DataTable.Row>
+                <DataTable.Cell>2</DataTable.Cell>
+                <DataTable.Cell>Entretenimiento</DataTable.Cell>
+                <DataTable.Cell numeric>100</DataTable.Cell>
+                </DataTable.Row>
+
+                <DataTable.Row>
+                <DataTable.Cell>3</DataTable.Cell>
+                <DataTable.Cell>Historia</DataTable.Cell>
+                <DataTable.Cell numeric>100</DataTable.Cell>
+                </DataTable.Row>
+
+                <DataTable.Row>
+                <DataTable.Cell>4</DataTable.Cell>
+                <DataTable.Cell>Geografía</DataTable.Cell>
+                <DataTable.Cell numeric>100</DataTable.Cell>
+                </DataTable.Row>
+
+                <DataTable.Row>
+                <DataTable.Cell>5</DataTable.Cell>
+                <DataTable.Cell>Ciencia</DataTable.Cell>
+                <DataTable.Cell numeric>500</DataTable.Cell>
+                </DataTable.Row>
+
+            </DataTable>
+            </View>
             <Text style={styles.description}>
                 Para comenzar a jugar presiona el boton, 
-                cada ronda exitosa ganaras 100 puntos, 1 punto es igual a 1 USD
-                
+                cada ronda exitosa otorga 100 puntos, la ultima ronda otorga 500 puntos!!
             </Text>
+            <Text style={styles.title}> 1 punto= 1USD </Text>
+            <Input
+                containerStyle={styles.input}
+                placeholder= "Ingresa tu nombre..."
+                onChange= {(e) => onChange(e, "name")}
+                errorMessage={errorName}
+                defaultValue={formData.name}
+            />
+            <Input
+                containerStyle={styles.input}
+                placeholder= "Ingresa tu edad..."
+                onChange= {(e) => onChange(e, "age")}
+                errorMessage={errorAge}
+                defaultValue={formData.age}
+            />
             <Button
                 title="Comenzar juego"
                 buttonStyle={styles.button}
-                onPress={() => navigation.navigate("playGame", {level : level, points : points})}
+                onPress={() => startGame()}
+            />
+            <Button
+                title="Configurar Preguntas"
+                buttonStyle={{backgroundColor: "#ec1558", marginTop: 5}}
+                onPress={() => navigation.navigate("configureGame")}
             />
         </ScrollView>
     )
+}
+
+const defaultFormValues = () => {
+    return { name: "", age: ""} 
 }
 
 const styles = StyleSheet.create({
@@ -45,24 +136,26 @@ const styles = StyleSheet.create({
         marginHorizontal:30
     },
     image: {
-        height: 300,
+        height: 200,
         width: "100%",
         marginBottom: 10
     },
     title: {
         fontWeight: "bold",
-        fontSize: 19,
-        marginVertical: 10,
+        fontSize: 15,
         textAlign: "justify",
-        alignItems: "flex-start"
+        alignItems: "flex-start",
+        marginBottom: 20
     },
     description: {
         textAlign: "justify",
         fontSize: 15,
-        marginBottom: 20,
         color: "#a45c34"
     },
     button: {
         backgroundColor: "#54bcec"
+    },
+    container: {
+        paddingHorizontal: 30,
     }
 })

@@ -4,13 +4,13 @@ import { useFocusEffect } from '@react-navigation/core'
 import { Button, ListItem } from 'react-native-elements'
 import { map } from 'lodash'
 
-import { getQuestion } from '../utils/actions'
+import { addDocumentWithoutId, getQuestion } from '../utils/actions'
 import Loading from '../components/Loading'
 import Modal from '../components/Modal'
 
 export default function PlayGame({ navigation, route }) {
-    const { level, points } = route.params
-    const [controlLevel, setControlLevel] = useState(level)
+    const { points, playerName, playerAge } = route.params
+    const [controlLevel, setControlLevel] = useState(1)
     const [controlPoints, setControlPoints] = useState(points)
     const [question, setQuestion] = useState("")
     const [answers, setAnswers] = useState([])
@@ -115,16 +115,28 @@ export default function PlayGame({ navigation, route }) {
         setShowLoseModal(true)
     }
 
+    const savePlayerData = async() => {
+        //const [data, setData] = useState({playerName: playerName, playerAge: playerAge, roundReached: controlLevel, pointsWon: controlPoints})
+        const data= {playerName: playerName, playerAge: playerAge, roundReached: controlLevel-1, pointsWon: controlPoints}
+        const response = await addDocumentWithoutId("playersInfo", data)
+                if(response.statusResponse){
+                    console.log("info del juegador guardada")
+                }
+        navigation.navigate("welcomePage")
+    }
+
     return (
         controlLevel==6
-                ? <View>
+                ? 
+                
+                <View>
                 <Text style={styles.title}>Felicidades!</Text>
                 <Text style={styles.title}>Llegaste a la ronda {controlLevel-1} y ganaste {controlPoints}USD</Text>
                 <Button
                     title="Volver a pantalla principal"
                     containerStyle={styles.btnContainer}
                     buttonStyle={styles.btn}
-                    onPress={() => navigation.navigate("welcomePage")}
+                    onPress={() => savePlayerData()}
                 />
             </View>
                 :
@@ -159,14 +171,30 @@ export default function PlayGame({ navigation, route }) {
             />
             <Modal isVisible={showLoseModal} setVisible={setShowLoseModal}>
                 {
-                    <Lose controlLevel={controlLevel} answers={answers} correctAnswer={correctAnswer} setVisible={setShowLoseModal} navigation={navigation} wonPoints={controlPoints} exitButton={exitButton}/>
+                    <Lose playerName={playerName} playerAge={playerAge} controlLevel={controlLevel} answers={answers} correctAnswer={correctAnswer} 
+                    setVisible={setShowLoseModal} navigation={navigation} wonPoints={controlPoints} exitButton={exitButton}/>
                 }
             </Modal>
         </View>
     )
 }
 
-function Lose({controlLevel, answers, correctAnswer, setVisible, navigation, wonPoints,exitButton}){
+function Lose({playerName, playerAge, controlLevel, answers, correctAnswer, setVisible, navigation, wonPoints,exitButton}){
+    
+    const [data, setData] = useState({playerName: playerName, playerAge: playerAge, roundReached: controlLevel-1, pointsWon: wonPoints})
+    
+    useFocusEffect(
+        useCallback(() => {
+            (async() =>{
+                // setLoading(true)
+                const response = await addDocumentWithoutId("playersInfo", data)
+                if(response.statusResponse){
+                    console.log("info del juegador guardada")
+                }
+                // setLoading(false)
+            })()
+        }, [])
+    )
 
     return(
         exitButton
